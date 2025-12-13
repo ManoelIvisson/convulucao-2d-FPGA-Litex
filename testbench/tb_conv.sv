@@ -4,8 +4,8 @@ module tb_conv;
   parameter PIX_W = 8;
   parameter COEF_W = 16;
   parameter ACC_W = 32;
-  parameter IMG_W = 16;
-  parameter IMG_H = 16;
+  parameter IMG_W = 640;
+  parameter IMG_H = 960;
 
   logic clk = 0;
   always #5 clk = ~clk; // 100 MHz -> period 10ns
@@ -39,11 +39,7 @@ module tb_conv;
 
   initial begin
     // create a simple test image: gradient
-    for (y=0; y<IMG_H; y=y+1) begin
-      for (x=0; x<IMG_W; x=x+1) begin
-        img[y*IMG_W + x] = (x*16 + y*4) & 8'hFF;
-      end
-    end
+    $readmemh("image_in.hex", img);
 
     // write kernel (example: simple blur / average)
     // kernel = 1 1 1; 1 1 1; 1 1 1  (need normalization by SHIFT in top)
