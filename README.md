@@ -2,7 +2,7 @@
 
 ## Kernels
 
-### Kernel Sobel horinzotal
+### Kernel Sobel horizontal
 
     kernel_wr = 1;
 
