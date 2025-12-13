@@ -22,3 +22,13 @@
 
 ### Kernel Blur simples
 
+    @(posedge rstn);
+    @(posedge clk);
+    // write nine coefficients
+    kernel_wr = 1;
+    for (idx=0; idx<9; idx=idx+1) begin
+      kernel_addr = idx;
+      kernel_data = 16'sd1; // all ones
+      @(posedge clk);
+    end
+    kernel_wr = 0;
