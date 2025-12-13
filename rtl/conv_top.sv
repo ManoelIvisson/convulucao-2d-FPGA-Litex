@@ -5,7 +5,9 @@ module conv_top #(
   parameter PIX_W   = 8,    // input pixel width (unsigned 0..255)
   parameter COEF_W  = 16,   // coefficient width (signed)
   parameter ACC_W   = 32,   // accumulator width
-  parameter IMG_W   = 128   // image width (pixels per row)
+  parameter IMG_W   = 128,  // image width (pixels per row)
+  parameter USE_ABS = 1,  // 1 = usa |acc| (Sobel), 0 = direto (blur)
+  parameter SHIFT = 0
 )(
   input  logic                 clk,
   input  logic                 rstn,
@@ -64,31 +66,47 @@ module conv_top #(
     .acc_out(acc_out)
   );
 
-  // normalization/clamp: choose a shift (you can parameterize)
-  // For now, use a fixed right shift of 8 (i.e., divide by 256) as an example.
-  localparam int SHIFT = 8;
-
+  logic signed [ACC_W-1:0] acc_proc;
   logic signed [ACC_W-1:0] acc_shifted;
+
+  // For now, use a fixed right shift of 8 (i.e., divide by 256) as an example.
+  // normalization/clamp
+
+  logic signed [ACC_W-1:0] acc_abs;
+  logic signed [ACC_W-1:0] acc_norm;
+
+  always_comb begin
+    // ABS opcional
+    if (USE_ABS && acc_out[ACC_W-1])
+      acc_abs = -acc_out;
+    else
+      acc_abs = acc_out;
+
+    // normalização
+    acc_norm = acc_abs >>> SHIFT;
+  end
+
+
   always_ff @(posedge clk) begin
-    if (!rstn) begin
-      px_out <= '0;
-      valid_out <= 1'b0;
+  if (!rstn) begin
+    px_out    <= '0;
+    valid_out <= 1'b0;
+  end else begin
+    if (window_valid) begin
+
+      if (acc_norm <= 0)
+        px_out <= '0;
+      else if (acc_norm >= (1<<PIX_W)-1)
+        px_out <= {(PIX_W){1'b1}};
+      else
+        px_out <= acc_norm[PIX_W-1:0];
+
+      valid_out <= 1'b1;
     end else begin
-      if (window_valid) begin
-        // arithmetic shift or logical depending on sign; here treat negative to clamp to 0
-        acc_shifted = acc_out >>> SHIFT;
-        // clamp to 0..(2^PIX_W-1)
-        if (acc_shifted <= 0)
-          px_out <= '0;
-        else if (acc_shifted >= (1<<PIX_W)-1)
-          px_out <= {(PIX_W){1'b1}};
-        else
-          px_out <= acc_shifted[PIX_W-1:0];
-        valid_out <= 1'b1;
-      end else begin
-        valid_out <= 1'b0;
-      end
+      valid_out <= 1'b0;
     end
   end
+end
+
 
 endmodule

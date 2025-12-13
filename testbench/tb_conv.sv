@@ -6,6 +6,7 @@ module tb_conv;
   parameter ACC_W = 32;
   parameter IMG_W = 640;
   parameter IMG_H = 960;
+  parameter SHIFT = 8;
 
   logic clk = 0;
   always #5 clk = ~clk; // 100 MHz -> period 10ns
@@ -26,7 +27,7 @@ module tb_conv;
   logic [PIX_W-1:0] px_out;
 
   // instantiate DUT
-  conv_top #(.PIX_W(PIX_W), .COEF_W(COEF_W), .ACC_W(ACC_W), .IMG_W(IMG_W)) dut (
+  conv_top #(.PIX_W(PIX_W), .COEF_W(COEF_W), .ACC_W(ACC_W), .IMG_W(IMG_W), .SHIFT(SHIFT)) dut (
     .clk(clk), .rstn(rstn),
     .valid_in(valid_in), .px_in(px_in),
     .kernel_wr(kernel_wr), .kernel_addr(kernel_addr), .kernel_data(kernel_data),
@@ -41,8 +42,6 @@ module tb_conv;
     // create a simple test image: gradient
     $readmemh("image_in.hex", img);
 
-    // write kernel (example: simple blur / average)
-    // kernel = 1 1 1; 1 1 1; 1 1 1  (need normalization by SHIFT in top)
     @(posedge rstn);
     @(posedge clk);
     // write nine coefficients
