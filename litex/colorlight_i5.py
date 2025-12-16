@@ -27,7 +27,7 @@ from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 
 from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
 
-from produto_escalar import ProdutoEscalar
+from conv_csr import ConvCSR
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -130,8 +130,8 @@ class BaseSoC(SoCCore):
             ledn = platform.request_all("user_led_n")
             self.leds = LedChaser(pads=ledn, sys_clk_freq=sys_clk_freq)
 
-        self.submodules.produto_escalar = ProdutoEscalar(self.platform)
-        self.add_csr("produto_escalar")
+        self.submodules.conv_csr = ConvCSR(self.platform)
+        self.add_csr("conv_csr")
 
         # SPI Flash --------------------------------------------------------------------------------
         if board == "i5":
