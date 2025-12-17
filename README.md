@@ -326,6 +326,7 @@ img.show()
 The repository includes Python scripts for image processing:
 
 - `convert_image.py`: Converts a PNG image to hex format for simulation input
+
   ```bash
   python convert_image.py input.png image_in.hex
   ```
@@ -746,6 +747,7 @@ img.show()
 O repositório inclui scripts Python para processamento de imagem:
 
 - `convert_image.py`: Converte uma imagem PNG para formato hex para entrada de simulação
+
   ```bash
   python convert_image.py entrada.png image_in.hex
   ```
