@@ -2,12 +2,10 @@ module conv_csr (
     input  logic        clk,
     input  logic        rst,
 
-    // FIFO interface
     input  logic [7:0]  fifo_dout,
     input  logic        fifo_empty,
     output logic        fifo_rd_en,
 
-    // CSR interface
     input  logic        csr_pixel_re,
     output logic [7:0]  csr_pixel_r,
     output logic        csr_valid_r,
@@ -22,7 +20,6 @@ module conv_csr (
             pixel_count  <= 32'd0;
         end else begin
             fifo_rd_en <= 1'b0;
-
             if (csr_pixel_re && !fifo_empty) begin
                 fifo_rd_en  <= 1'b1;
                 csr_pixel_r <= fifo_dout;

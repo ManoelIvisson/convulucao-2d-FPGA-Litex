@@ -19,6 +19,7 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.video import VideoHDMIPHY
 from litex.soc.cores.led import LedChaser
+from litex.soc.interconnect.csr import CSRStatus, CSRStorage
 
 from litex.soc.interconnect.csr import *
 
@@ -26,8 +27,6 @@ from litedram.modules import M12L64322A # Compatible with EM638325-6H.
 from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
 
 from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
-
-from conv_csr import ConvCSR
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -129,9 +128,40 @@ class BaseSoC(SoCCore):
         if with_led_chaser:
             ledn = platform.request_all("user_led_n")
             self.leds = LedChaser(pads=ledn, sys_clk_freq=sys_clk_freq)
+        
+        # ============================================================
+        # Convolution Hardware (top_image_soc)
+        # ============================================================
+        # CSR para leitura de pixel
+        self.csr_pixel_re = CSRStorage(1, description="Read pixel")
 
-        self.submodules.conv_csr = ConvCSR(self.platform)
-        self.add_csr("conv_csr")
+        self.csr_pixel_r  = CSRStatus(8, description="Pixel data")
+        self.csr_valid_r  = CSRStatus(1, description="Pixel valid")
+
+        self.pixel_count  = CSRStatus(32, description="Pixels read")
+        self.done         = CSRStatus(1, description="Processing done")
+        self.cycle_count  = CSRStatus(32, description="Cycle counter")
+
+        self.specials += Instance(
+            "top_image_soc",
+
+            # Clock / Reset
+            i_clk  = ClockSignal(),
+            i_rstn = ~ResetSignal(),
+
+            # CSR -> hardware
+            i_csr_pixel_re = self.csr_pixel_re.storage,
+
+            # hardware -> CSR
+            o_csr_pixel_r  = self.csr_pixel_r.status,
+            o_csr_valid_r  = self.csr_valid_r.status,
+            o_pixel_count  = self.pixel_count.status,
+            o_done         = self.done.status,
+            o_cycle_count  = self.cycle_count.status
+        )
+
+
+
 
         # SPI Flash --------------------------------------------------------------------------------
         if board == "i5":
@@ -184,6 +214,18 @@ class BaseSoC(SoCCore):
                 self.add_video_terminal(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
             if with_video_framebuffer:
                 self.add_video_framebuffer(phy=self.videophy, timings="800x600@60Hz", clock_domain="hdmi")
+        # ============================================================
+        # RTL sources
+        # ============================================================
+        self.platform.add_source("rtl/top_image_soc.sv")
+        self.platform.add_source("rtl/conv_top.sv")
+        self.platform.add_source("rtl/conv_csr.sv")
+        self.platform.add_source("rtl/linebuffer_3x3.sv")
+        self.platform.add_source("rtl/mac9.sv")
+        self.platform.add_source("rtl/output_fifo.sv")
+        self.platform.add_source("rtl/pixel_feeder.sv")
+        self.platform.add_source("rtl/image_rom.sv")
+
 
 # Build --------------------------------------------------------------------------------------------
 

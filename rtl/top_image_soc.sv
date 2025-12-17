@@ -49,18 +49,6 @@ module top_image_soc #(
     end
 
     // ============================================================
-    // ROM da imagem (pré-compilada)
-    // ============================================================
-    image_rom #(
-        .IMG_W(IMG_W),
-        .IMG_H(IMG_H),
-        .PIX_W(PIX_W)
-    ) image_rom_i (
-        .clk   (clk),
-        .px_out(rom_px)
-    );
-
-    // ============================================================
     // Pixel Feeder (gera fluxo streaming)
     // ============================================================
     pixel_feeder #(
@@ -105,16 +93,17 @@ module top_image_soc #(
     // CSR LiteX (CPU lê pixels processados)
     // ============================================================
     conv_csr csr_if (
-        .clk          (clk),
-        .rst          (~rstn),
-        .fifo_dout    (fifo_dout),
-        .fifo_empty   (fifo_empty),
-        .fifo_rd_en   (fifo_rd_en),
-        .csr_pixel_re (csr_pixel_re),
-        .csr_pixel_r  (csr_pixel_r),
-        .csr_valid_r  (csr_valid_r),
-        .pixel_count  (pixel_count)
+        .clk(clk),
+        .rst(~rstn),
+        .fifo_dout(fifo_dout),
+        .fifo_empty(fifo_empty),
+        .fifo_rd_en(fifo_rd_en),
+        .csr_pixel_re(csr_pixel_re),
+        .csr_pixel_r(csr_pixel_r),
+        .csr_valid_r(csr_valid_r),
+        .pixel_count(pixel_count)
     );
+
 
     // ============================================================
     // Done flag
