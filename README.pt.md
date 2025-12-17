@@ -1,4 +1,4 @@
-[Read this page in English](README.md) | [Leia esta página em português](README-pt.md)
+🇧🇷 [Português](README.pt.md) | 🇺🇸 [English](README.md)
 
 # Motor de Convolução 2D para FPGA
 

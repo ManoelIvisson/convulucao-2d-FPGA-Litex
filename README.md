@@ -1,4 +1,4 @@
-[Read this page in English](README.md) | [Leia esta página em português](README-pt.md)
+🇺🇸 [English](README.md) | 🇧🇷 [Português](README.pt.md)
 
 # 2D Convolution Engine for FPGA
 
