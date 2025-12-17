@@ -3,6 +3,7 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![SystemVerilog](https://img.shields.io/badge/HDL-SystemVerilog-orange.svg)]()
 [![FPGA](https://img.shields.io/badge/target-FPGA-green.svg)]()
+[![Repo](https://img.shields.io/badge/repo-GitHub-black.svg)](https://github.com/ManoelIvisson/convulucao-2d-FPGA-Litex)
 
 ## 📋 Table of Contents
 
@@ -232,6 +233,32 @@ conv_top #(
 
 **Effect:** Enhances edges and details in the image
 
+### Example 4: Laplacian Edge Detection
+
+```
+Kernel:
+┌────┬───┬────┐
+│  0 │ -1 │  0 │
+├────┼───┼────┤
+│ -1 │  4 │ -1 │
+├────┼───┼────┤
+│  0 │ -1 │  0 │
+└────┴───┴────┘
+```
+
+**Configuration:**
+
+```systemverilog
+conv_top #(
+  .PIX_W(8),
+  .IMG_W(640),
+  .USE_ABS(1),  // Use absolute value
+  .SHIFT(0)
+) laplacian_inst (...);
+```
+
+**Effect:** Detects edges by highlighting regions of rapid intensity change
+
 ## Getting Started
 
 ### Prerequisites
@@ -245,8 +272,8 @@ conv_top #(
 1. **Clone the repository**
 
 ```bash
-git clone https://github.com/yourusername/fpga-2d-convolution.git
-cd fpga-2d-convolution
+git clone https://github.com/ManoelIvisson/convulucao-2d-FPGA-Litex.git
+cd convulucao-2d-FPGA-Litex
 ```
 
 2. **Prepare input image**
@@ -294,26 +321,70 @@ img.save('output.png')
 img.show()
 ```
 
+## Scripts and Tools
+
+The repository includes Python scripts for image processing:
+
+- `convert_image.py`: Converts a PNG image to hex format for simulation input
+  ```bash
+  python convert_image.py input.png image_in.hex
+  ```
+
+- `view_output.py`: Converts hex output from simulation to PNG image
+  ```bash
+  python view_output.py out_pixels.hex output.png
+  ```
+
+Install dependencies: `pip install pillow numpy`
+
 ## Simulation
 
-### Testbench (tb_conv.sv)
+### Prerequisites
 
-The included testbench demonstrates:
+- **FPGA Tools**: Xilinx Vivado (recommended) or Intel Quartus Prime
+- **Target Device**: Any modern FPGA (e.g., Xilinx Artix-7, Kintex-7, or equivalent)
 
-- Image loading from hex file
-- Kernel programming
-- Pixel streaming at 1 pixel/cycle
-- Output capture to hex file
+### Steps for Vivado
 
-### Waveform Analysis
+1. **Create a new project in Vivado**
 
-Key signals to monitor:
+   - Open Vivado and select "Create Project"
+   - Set project name and location
+   - Choose "RTL Project" and add the RTL files: `rtl/conv_top.sv`, `rtl/linebuffer_3x3.sv`, `rtl/mac9.sv`
 
-- `valid_in`, `px_in`: Input stream
-- `w00`-`w22`: 3×3 window contents
-- `window_valid`: Window ready signal
-- `acc_out`: Raw convolution result
-- `valid_out`, `px_out`: Output stream
+2. **Configure synthesis settings**
+
+   - In Project Settings > Synthesis, set target language to SystemVerilog
+   - Add any necessary constraints (e.g., clock constraints in a .xdc file)
+
+3. **Run synthesis and implementation**
+
+   ```bash
+   # In Vivado Tcl console or batch mode
+   synth_design -top conv_top -part xc7a35tcpg236-1
+   opt_design
+   place_design
+   route_design
+   write_bitstream -force conv_top.bit
+   ```
+
+4. **Generate reports**
+
+   - Check timing reports for clock frequency
+   - Verify resource utilization matches estimates
+
+### For Quartus (Intel FPGA)
+
+1. Create a new project in Quartus Prime
+2. Add RTL files and set top-level entity to `conv_top`
+3. Configure device family (e.g., Cyclone V)
+4. Run compilation and generate .sof file
+
+### Tips
+
+- Monitor timing closure; adjust pipeline if needed
+- Use DSP blocks for multipliers to optimize resource usage
+- Test on hardware with a simple test pattern before full images
 
 ## Performance
 
@@ -362,6 +433,22 @@ Key signals to monitor:
 - Medical image enhancement
 - Microscopy image processing
 - Satellite image analysis
+
+## Troubleshooting
+
+### Common Issues
+
+- **Simulation fails with overflow**: Check kernel coefficients and SHIFT parameter. Ensure coefficients sum appropriately for normalization.
+- **Timing violations in synthesis**: Reduce clock frequency or add pipeline stages. Monitor critical path in Vivado reports.
+- **Incorrect output pixels**: Verify kernel programming order (row-major). Check image dimensions match IMG_W parameter.
+- **BRAM usage high**: For larger IMG_W, consider external memory or adjust buffer size.
+- **Python scripts fail**: Install dependencies: `pip install pillow numpy`. Ensure input image is grayscale.
+
+### Debugging Tips
+
+- Use waveform viewer to inspect `window_valid` and pixel streams
+- Add debug signals for intermediate MAC results
+- Test with simple kernels (e.g., identity) first
 
 ---
 
@@ -566,6 +653,32 @@ conv_top #(
 
 **Efeito:** Realça bordas e detalhes na imagem
 
+### Exemplo 4: Detecção de Bordas Laplaciano
+
+```
+Kernel:
+┌────┬───┬────┐
+│  0 │ -1 │  0 │
+├────┼───┼────┤
+│ -1 │  4 │ -1 │
+├────┼───┼────┤
+│  0 │ -1 │  0 │
+└────┴───┴────┘
+```
+
+**Configuração:**
+
+```systemverilog
+conv_top #(
+  .PIX_W(8),
+  .IMG_W(640),
+  .USE_ABS(1),  // Usa valor absoluto
+  .SHIFT(0)
+) laplacian_inst (...);
+```
+
+**Efeito:** Detecta bordas destacando regiões de mudança rápida de intensidade
+
 ## Como Começar
 
 ### Pré-requisitos
@@ -579,8 +692,8 @@ conv_top #(
 1. **Clone o repositório**
 
 ```bash
-git clone https://github.com/seuusuario/fpga-2d-convolution.git
-cd fpga-2d-convolution
+git clone https://github.com/ManoelIvisson/convulucao-2d-FPGA-Litex.git
+cd convulucao-2d-FPGA-Litex
 ```
 
 2. **Prepare a imagem de entrada**
@@ -628,26 +741,70 @@ img.save('saida.png')
 img.show()
 ```
 
+## Scripts e Ferramentas
+
+O repositório inclui scripts Python para processamento de imagem:
+
+- `convert_image.py`: Converte uma imagem PNG para formato hex para entrada de simulação
+  ```bash
+  python convert_image.py entrada.png image_in.hex
+  ```
+
+- `view_output.py`: Converte saída hex da simulação para imagem PNG
+  ```bash
+  python view_output.py out_pixels.hex saida.png
+  ```
+
+Instale dependências: `pip install pillow numpy`
+
 ## Simulação
 
-### Testbench (tb_conv.sv)
+### Pré-requisitos
 
-O testbench incluído demonstra:
+- **Ferramentas FPGA**: Xilinx Vivado (recomendado) ou Intel Quartus Prime
+- **Dispositivo Alvo**: Qualquer FPGA moderno (ex.: Xilinx Artix-7, Kintex-7 ou equivalente)
 
-- Carregamento de imagem de arquivo hex
-- Programação do kernel
-- Streaming de pixels a 1 pixel/ciclo
-- Captura de saída em arquivo hex
+### Passos para Vivado
 
-### Análise de Formas de Onda
+1. **Crie um novo projeto no Vivado**
 
-Sinais principais para monitorar:
+   - Abra o Vivado e selecione "Create Project"
+   - Defina nome e localização do projeto
+   - Escolha "RTL Project" e adicione os arquivos RTL: `rtl/conv_top.sv`, `rtl/linebuffer_3x3.sv`, `rtl/mac9.sv`
 
-- `valid_in`, `px_in`: Stream de entrada
-- `w00`-`w22`: Conteúdo da janela 3×3
-- `window_valid`: Sinal de janela pronta
-- `acc_out`: Resultado bruto da convolução
-- `valid_out`, `px_out`: Stream de saída
+2. **Configure as configurações de síntese**
+
+   - Em Project Settings > Synthesis, defina a linguagem alvo como SystemVerilog
+   - Adicione constraints necessários (ex.: constraints de clock em um arquivo .xdc)
+
+3. **Execute síntese e implementação**
+
+   ```bash
+   # No console Tcl do Vivado ou modo batch
+   synth_design -top conv_top -part xc7a35tcpg236-1
+   opt_design
+   place_design
+   route_design
+   write_bitstream -force conv_top.bit
+   ```
+
+4. **Gere relatórios**
+
+   - Verifique relatórios de timing para frequência de clock
+   - Confirme utilização de recursos com as estimativas
+
+### Para Quartus (Intel FPGA)
+
+1. Crie um novo projeto no Quartus Prime
+2. Adicione arquivos RTL e defina entidade de nível superior como `conv_top`
+3. Configure família de dispositivo (ex.: Cyclone V)
+4. Execute compilação e gere arquivo .sof
+
+### Dicas
+
+- Monitore fechamento de timing; ajuste pipeline se necessário
+- Use blocos DSP para multiplicadores para otimizar uso de recursos
+- Teste em hardware com um padrão simples antes de imagens completas
 
 ## Desempenho
 
@@ -697,24 +854,36 @@ Sinais principais para monitorar:
 - Processamento de imagem de microscopia
 - Análise de imagem de satélite
 
+## Solução de Problemas
+
+### Problemas Comuns
+
+- **Simulação falha com overflow**: Verifique coeficientes do kernel e parâmetro SHIFT. Garanta que coeficientes somem adequadamente para normalização.
+- **Violações de timing na síntese**: Reduza frequência de clock ou adicione estágios de pipeline. Monitore caminho crítico em relatórios do Vivado.
+- **Pixels de saída incorretos**: Verifique ordem de programação do kernel (linha-principal). Confirme dimensões da imagem correspondem ao parâmetro IMG_W.
+- **Uso alto de BRAM**: Para IMG_W maior, considere memória externa ou ajuste tamanho do buffer.
+- **Scripts Python falham**: Instale dependências: `pip install pillow numpy`. Garanta que imagem de entrada seja em escala de cinza.
+
+### Dicas de Depuração
+
+- Use visualizador de formas de onda para inspecionar `window_valid` e streams de pixels
+- Adicione sinais de debug para resultados intermediários do MAC
+- Teste com kernels simples (ex.: identidade) primeiro
+
 ---
 
 ## 📁 Project Structure
 
 ```
-fpga-2d-convolution/
+convulucao-2d-FPGA-Litex/
 ├── rtl/
 │   ├── conv_top.sv          # Top-level module
 │   ├── linebuffer_3x3.sv    # Line buffer implementation
 │   └── mac9.sv              # MAC unit
-├── tb/
+├── testbench/
 │   └── tb_conv.sv           # Testbench
-├── scripts/
-│   ├── convert_image.py     # Image to hex converter
-│   ├── view_output.py       # Output visualizer
-│   └── sim_script.tcl       # Simulation script
-├── docs/
-│   └── images/              # Documentation images
+├── convert_image.py         # Image to hex converter
+├── view_output.py           # Output visualizer
 └── README.md                # This file
 ```
 
