@@ -5,6 +5,8 @@ module top_image_soc #(
 )(
     input  logic clk,
     input  logic rstn,
+    input  logic        i_csr_pixel_valid,
+    input  logic [7:0]  i_csr_pixel_data,
 
     // ---- CSR interface (LiteX conecta aqui) ----
     input  logic        csr_pixel_re,
@@ -21,9 +23,6 @@ module top_image_soc #(
     // Sinais internos
     // ============================================================
 
-    // ROM → Feeder
-    logic [PIX_W-1:0] rom_px;
-
     // Feeder → Convolução
     logic [PIX_W-1:0] feed_px;
     logic             feed_valid;
@@ -38,6 +37,12 @@ module top_image_soc #(
     logic       fifo_empty;
     logic       fifo_rd_en;
 
+    logic [7:0] uart_data;
+    logic       uart_valid;
+    logic       uart_ready;
+    logic       uart_tx_pin;
+
+
     // ============================================================
     // Contador de ciclos (só hardware, sem CPU)
     // ============================================================
@@ -51,18 +56,17 @@ module top_image_soc #(
     // ============================================================
     // Pixel Feeder (gera fluxo streaming)
     // ============================================================
-    pixel_feeder #(
-        .IMG_W(IMG_W),
-        .IMG_H(IMG_H),
-        .PIX_W(PIX_W)
-    ) feeder (
-        .clk       (clk),
-        .rstn      (rstn),
-        .px_in     (rom_px),
-        .px_out    (feed_px),
-        .valid_out (feed_valid),
-        .done      (feeding_done)
+    pixel_feeder_uart feeder (
+        .clk        (clk),
+        .rstn       (rstn),
+
+        .px_valid   (i_csr_pixel_valid),
+        .px_in      (i_csr_pixel_data),
+
+        .valid_out  (px_valid),
+        .px_out     (px_data)
     );
+
 
     // ============================================================
     // Convolução 2D 3x3 (PURO)
@@ -89,19 +93,32 @@ module top_image_soc #(
         .empty      (fifo_empty)
     );
 
-    // ============================================================
-    // CSR LiteX (CPU lê pixels processados)
-    // ============================================================
-    conv_csr csr_if (
+    fifo_to_uart streamer (
         .clk(clk),
-        .rst(~rstn),
-        .fifo_dout(fifo_dout),
+        .rstn(rstn),
+
+        .fifo_dout (fifo_dout),
         .fifo_empty(fifo_empty),
         .fifo_rd_en(fifo_rd_en),
-        .csr_pixel_re(csr_pixel_re),
-        .csr_pixel_r(csr_pixel_r),
-        .csr_valid_r(csr_valid_r),
-        .pixel_count(pixel_count)
+
+        .uart_data (uart_data),
+        .uart_valid(uart_valid),
+        .uart_ready(uart_ready)
+    );
+
+
+    uart_tx #(
+        .CLK_FREQ(60_000_000),
+        .BAUD(115200)
+    ) uart (
+        .clk  (clk),
+        .rstn (rstn),
+
+        .data (uart_data),
+        .valid(uart_valid),
+        .ready(uart_ready),
+
+        .tx   (uart_tx_pin)
     );
 
 

@@ -22,11 +22,7 @@ from litex.soc.cores.led import LedChaser
 from litex.soc.interconnect.csr import CSRStatus, CSRStorage
 
 from litex.soc.interconnect.csr import *
-
-from litedram.modules import M12L64322A # Compatible with EM638325-6H.
-from litedram.phy import GENSDRPHY, HalfRateGENSDRPHY
-
-from liteeth.phy.ecp5rgmii import LiteEthPHYRGMII
+from migen import Signal
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -160,6 +156,25 @@ class BaseSoC(SoCCore):
             o_cycle_count  = self.cycle_count.status
         )
 
+        # -------------------------
+        # Pixel Input CSR
+        # -------------------------
+        self.pixel_csr = CSRStorage(
+            fields=[
+                CSRField("data",  size=8, description="Pixel value"),
+                CSRField("valid", size=1, description="Write strobe"),
+            ],
+            name="pixel"
+        )
+
+        # sinais internos
+        pixel_data  = Signal(8)
+        pixel_valid = Signal()
+
+        self.comb += [
+            pixel_data.eq(self.pixel_csr.fields.data),
+            pixel_valid.eq(self.pixel_csr.fields.valid),
+        ]
 
 
 
@@ -171,41 +186,6 @@ class BaseSoC(SoCCore):
 
         from litespi.opcodes import SpiNorFlashOpCodes as Codes
         self.add_spi_flash(mode="1x", module=SpiFlashModule(Codes.READ_1_1_1))
-
-        # SDR SDRAM --------------------------------------------------------------------------------
-        if not self.integrated_main_ram_size:
-            sdrphy_cls = HalfRateGENSDRPHY if sdram_rate == "1:2" else GENSDRPHY
-            self.sdrphy = sdrphy_cls(platform.request("sdram"))
-            self.add_sdram("sdram",
-                phy           = self.sdrphy,
-                module        = M12L64322A(sys_clk_freq, sdram_rate),
-                l2_cache_size = kwargs.get("l2_size", 8192)
-            )
-
-        # Ethernet / Etherbone ---------------------------------------------------------------------
-        if with_ethernet or with_etherbone:
-            self.ethphy = LiteEthPHYRGMII(
-                clock_pads = self.platform.request("eth_clocks", eth_phy),
-                pads       = self.platform.request("eth", eth_phy),
-                tx_delay = 0)
-            if with_ethernet:
-                self.add_ethernet(phy=self.ethphy)
-            if with_etherbone:
-                self.add_etherbone(phy=self.ethphy)
-
-        if local_ip:
-            local_ip = local_ip.split(".")
-            self.add_constant("LOCALIP1", int(local_ip[0]))
-            self.add_constant("LOCALIP2", int(local_ip[1]))
-            self.add_constant("LOCALIP3", int(local_ip[2]))
-            self.add_constant("LOCALIP4", int(local_ip[3]))
-
-        if remote_ip:
-            remote_ip = remote_ip.split(".")
-            self.add_constant("REMOTEIP1", int(remote_ip[0]))
-            self.add_constant("REMOTEIP2", int(remote_ip[1]))
-            self.add_constant("REMOTEIP3", int(remote_ip[2]))
-            self.add_constant("REMOTEIP4", int(remote_ip[3]))
 
         # Video ------------------------------------------------------------------------------------
         if with_video_terminal or with_video_framebuffer:
@@ -219,12 +199,12 @@ class BaseSoC(SoCCore):
         # ============================================================
         self.platform.add_source("rtl/top_image_soc.sv")
         self.platform.add_source("rtl/conv_top.sv")
-        self.platform.add_source("rtl/conv_csr.sv")
         self.platform.add_source("rtl/linebuffer_3x3.sv")
         self.platform.add_source("rtl/mac9.sv")
         self.platform.add_source("rtl/output_fifo.sv")
-        self.platform.add_source("rtl/pixel_feeder.sv")
-        self.platform.add_source("rtl/image_rom.sv")
+        self.platform.add_source("rtl/fifo_to_uart.sv")
+        self.platform.add_source("rtl/pixel_feeder_uart.sv")
+        self.platform.add_source("rtl/uart_tx.sv")
 
 
 # Build --------------------------------------------------------------------------------------------

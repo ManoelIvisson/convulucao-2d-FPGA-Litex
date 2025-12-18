@@ -11,7 +11,7 @@ module output_fifo #(
     output logic [W-1:0] rd_data,
     input  logic         rd_en,
 
-    output logic         valid
+    output logic         empty
 );
 
     logic [W-1:0] mem [0:DEPTH-1];
@@ -37,6 +37,6 @@ module output_fifo #(
         end
     end
 
-    assign valid = (count != 0);
+    assign empty = (count != 0);
 
 endmodule
