@@ -1,27 +1,28 @@
-# convert_image.py
-# Script to convert a grayscale image to hex format for simulation
-
 from PIL import Image
 import numpy as np
-import sys
+import matplotlib.pyplot as plt
 
-if len(sys.argv) != 3:
-    print("Usage: python convert_image.py <input_image.png> <output.hex>")
-    sys.exit(1)
+# carregar imagem do disco
+img = Image.open("porta.jpg").convert("L")
+arr = np.array(img, dtype=np.uint8)
 
-input_file = sys.argv[1]
-output_file = sys.argv[2]
+H, W = 256, 171
 
-try:
-    img = Image.open(input_file).convert('L')  # Convert to grayscale
-    img = img.resize((640, 480))  # Resize to default dimensions
-    pixels = np.array(img)
+# salvar como valores hex
+with open("image_in.hex", "w") as f:
+    for y in range(H):
+        for x in range(W):
+            f.write(f"{arr[y, x]:02x}\n")
 
-    with open(output_file, 'w') as f:
-        for pixel in pixels.flatten():
-            f.write(f'{pixel:02x}\n')
+print("Arquivo image_in.hex gerado!")
 
-    print(f"Image converted to {output_file}")
+# refazer pra ver se a imagem continua a mesma
+data_in = [int(x.strip(),16) for x in open("image_in.hex")]
+img_in = np.array(data_in, dtype=np.uint8).reshape((H, W))
 
-except Exception as e:
-    print(f"Error: {e}")
+plt.figure(figsize=(10,4))
+
+plt.subplot(1,2,1)
+plt.imshow(img_in, cmap='gray')
+plt.title("Entrada (171 × 256)")
+plt.axis("off")
