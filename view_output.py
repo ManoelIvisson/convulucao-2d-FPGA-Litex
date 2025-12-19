@@ -1,27 +1,28 @@
-# view_output.py
-# Script to convert hex output from simulation back to image
-
 import numpy as np
-from PIL import Image
-import sys
+import matplotlib.pyplot as plt
 
-if len(sys.argv) != 3:
-    print("Usage: python view_output.py <input.hex> <output.png>")
-    sys.exit(1)
+H, W = 960, 640
 
-input_file = sys.argv[1]
-output_file = sys.argv[2]
+# carregar entrada
+data_in = [int(x.strip(),16) for x in open("image_in.hex")]
+img_in = np.array(data_in, dtype=np.uint8).reshape((H, W))
 
-try:
-    pixels = []
-    with open(input_file, 'r') as f:
-        for line in f:
-            pixels.append(int(line.strip(), 16))
+# carregar saída
+data_out = [int(x.strip(),16) for x in open("out_pixels.hex")]
+img_out = np.array(data_out, dtype=np.int16).reshape((H-2, W-2))
 
-    img_array = np.array(pixels).reshape(480, 640)
-    img = Image.fromarray(img_array.astype('uint8'))
-    img.save(output_file)
-    print(f"Output saved to {output_file}")
+plt.figure(figsize=(12,6))
 
-except Exception as e:
-    print(f"Error: {e}")
+plt.subplot(1,2,1)
+plt.imshow(img_in, cmap='gray')
+plt.title("Entrada (960 × 640)")
+plt.axis("off")
+
+plt.subplot(1,2,2)
+plt.imshow(np.abs(img_out), cmap='gray')
+plt.title("Saída convoluída (958 × 638)")
+plt.axis("off")
+
+plt.tight_layout()
+plt.savefig("imagem_convuluida_sobel.png")
+plt.show()
