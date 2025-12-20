@@ -1,3 +1,7 @@
 *.hex
 *.vvp
 build
+*.d
+*.o
+*.bin
+*.elf*

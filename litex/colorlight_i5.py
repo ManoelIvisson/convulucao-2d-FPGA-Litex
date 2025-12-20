@@ -91,7 +91,7 @@ class _CRG(LiteXModule):
 # BaseSoC ------------------------------------------------------------------------------------------
 
 class BaseSoC(SoCCore):
-    def __init__(self, board="i5", revision="7.0", toolchain="trellis", sys_clk_freq=60e6,
+    def __init__(self, board="i5", revision="7.2", toolchain="trellis", sys_clk_freq=60e6,
         with_ethernet          = False,
         with_etherbone         = False,
         local_ip               = "",
@@ -118,7 +118,9 @@ class BaseSoC(SoCCore):
         )
 
         # SoCCore ----------------------------------------------------------------------------------
-        SoCCore.__init__(self, platform, int(sys_clk_freq), ident = "LiteX SoC on Colorlight " + board.upper(), **kwargs)
+        SoCCore.__init__(self, platform, int(sys_clk_freq), 
+            ident = "LiteX SoC on Colorlight " + board.upper(), 
+            **kwargs)
 
         # Leds -------------------------------------------------------------------------------------
         if with_led_chaser:
