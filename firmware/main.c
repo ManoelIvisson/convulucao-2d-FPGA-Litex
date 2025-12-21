@@ -1,32 +1,38 @@
 #include <stdint.h>
 #include <generated/csr.h>
 
+/* ========================================================= */
+/* UART helpers (printf bare-metal)                          */
+/* ========================================================= */
+
 static void uart_putc(char c) {
+    /* espera TX ter espaço */
+    while (uart_txfull_read());
     uart_rxtx_write(c);
 }
 
 static void uart_puts(const char *s) {
-    while (*s)
+    while (*s) {
+        if (*s == '\n')
+            uart_putc('\r');  // terminal friendly
         uart_putc(*s++);
-}
-
-static void uart_puthex8(uint8_t v) {
-    const char hex[] = "0123456789ABCDEF";
-    uart_putc(hex[v >> 4]);
-    uart_putc(hex[v & 0xF]);
-    uart_putc(' ');
+    }
 }
 
 int main(void) {
-    uart_puts("Esperando bytes UART...\n");
+    /* limpa eventos pendentes da UART */
+    uart_ev_pending_write(uart_ev_pending_read());
+
+    /* mensagem inicial */
+    uart_puts("\n==============================\n");
+    uart_puts(" Firmware LiteX iniciado\n");
+    uart_puts(" Aguardando imagem pela UART...\n");
+    uart_puts("==============================\n");
 
     while (1) {
         if (!uart_rxempty_read()) {
 
             uint8_t px = uart_rxtx_read();
-
-            // eco controlado (1 print por byte)
-            uart_puthex8(px);
 
             // envia para o hardware
             main_csr_pixel_re_write(px);

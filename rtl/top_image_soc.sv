@@ -57,14 +57,14 @@ module top_image_soc #(
     // Pixel Feeder (gera fluxo streaming)
     // ============================================================
     pixel_feeder_uart feeder (
-        .clk        (clk),
-        .rstn       (rstn),
+        .clk       (clk),
+        .rstn      (rstn),
 
-        .px_valid   (i_csr_pixel_valid),
-        .px_in      (i_csr_pixel_data),
+        .px_valid  (i_csr_pixel_valid),
+        .px_in     (i_csr_pixel_data),
 
-        .valid_out  (px_valid),
-        .px_out     (px_data)
+        .valid_out (feed_valid),
+        .px_out    (feed_px)
     );
 
 
@@ -93,43 +93,20 @@ module top_image_soc #(
         .empty      (fifo_empty)
     );
 
-    fifo_to_uart streamer (
-        .clk(clk),
-        .rstn(rstn),
-
-        .fifo_dout (fifo_dout),
-        .fifo_empty(fifo_empty),
-        .fifo_rd_en(fifo_rd_en),
-
-        .uart_data (uart_data),
-        .uart_valid(uart_valid),
-        .uart_ready(uart_ready)
-    );
-
-
-    uart_tx #(
-        .CLK_FREQ(60_000_000),
-        .BAUD(115200)
-    ) uart (
-        .clk  (clk),
-        .rstn (rstn),
-
-        .data (uart_data),
-        .valid(uart_valid),
-        .ready(uart_ready),
-
-        .tx   (uart_tx_pin)
-    );
-
 
     // ============================================================
     // Done flag
     // ============================================================
     always_ff @(posedge clk) begin
-        if (!rstn)
-            done <= 1'b0;
-        else if (feeding_done)
-            done <= 1'b1;
+        if (!rstn) begin
+            pixel_count  <= 0;
+            feeding_done <= 0;
+        end else if (i_csr_pixel_valid) begin
+            pixel_count <= pixel_count + 1;
+            if (pixel_count == IMG_W*IMG_H-1)
+                feeding_done <= 1'b1;
+        end
     end
+
 
 endmodule

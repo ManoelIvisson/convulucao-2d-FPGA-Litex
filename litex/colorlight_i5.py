@@ -204,9 +204,7 @@ class BaseSoC(SoCCore):
         self.platform.add_source("rtl/linebuffer_3x3.sv")
         self.platform.add_source("rtl/mac9.sv")
         self.platform.add_source("rtl/output_fifo.sv")
-        self.platform.add_source("rtl/fifo_to_uart.sv")
         self.platform.add_source("rtl/pixel_feeder_uart.sv")
-        self.platform.add_source("rtl/uart_tx.sv")
 
 
 # Build --------------------------------------------------------------------------------------------
