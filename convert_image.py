@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 img = Image.open("porta.jpg").convert("L")
 arr = np.array(img, dtype=np.uint8)
 
-H, W = 960, 640
+H, W = 128, 128
 
 # salvar como valores hex
 with open("image_in.hex", "w") as f:
