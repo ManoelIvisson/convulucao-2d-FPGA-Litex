@@ -1,28 +1,28 @@
 from PIL import Image
-import numpy as np
-import matplotlib.pyplot as plt
+import sys
 
-# carregar imagem do disco
-img = Image.open("porta.jpg").convert("L")
-arr = np.array(img, dtype=np.uint8)
+def convert_to_raw(input_path, output_path):
+    # Abre a imagem
+    img = Image.open(input_path)
+    
+    # FORÇA A CONVERSÃO PARA ESCALA DE CINZA (8-bit)
+    img = img.convert('L') 
+    
+    # Redimensiona se necessário (Bicubic para melhor qualidade)
+    img = img.resize((128, 128), Image.BICUBIC)
+    
+    # Obtém os bytes crus
+    raw_data = img.tobytes()
+    
+    # Salva
+    with open(output_path, 'wb') as f:
+        f.write(raw_data)
+        
+    print(f"Convertido: {len(raw_data)} bytes salvos em {output_path}")
 
-H, W = 128, 128
-
-# salvar como valores hex
-with open("image_in.hex", "w") as f:
-    for y in range(H):
-        for x in range(W):
-            f.write(f"{arr[y, x]:02x}\n")
-
-print("Arquivo image_in.hex gerado!")
-
-# refazer pra ver se a imagem continua a mesma
-data_in = [int(x.strip(),16) for x in open("image_in.hex")]
-img_in = np.array(data_in, dtype=np.uint8).reshape((H, W))
-
-plt.figure(figsize=(10,4))
-
-plt.subplot(1,2,1)
-plt.imshow(img_in, cmap='gray')
-plt.title("Entrada (171 × 256)")
-plt.axis("off")
+# Uso: python3 convert_image.py entrada.jpg image_raw.hex
+if __name__ == "__main__":
+    if len(sys.argv) < 3:
+        print("Usage: python convert_image.py <input> <output>")
+    else:
+        convert_to_raw(sys.argv[1], sys.argv[2])

@@ -87,8 +87,7 @@ class ConvolutionCore(Module, AutoCSR):
         i_clk = ClockSignal()
         i_rstn = ResetSignal()
         
-        # Adiciona os fontes SystemVerilog
-        # IMPORTANTE: Garanta que o caminho para seus arquivos RTL esteja correto
+        # Adiciona as fontes SystemVerilog
         platform.add_source("rtl/mac9.sv")
         platform.add_source("rtl/linebuffer_3x3.sv")
         platform.add_source("rtl/conv_top.sv")
