@@ -5,7 +5,7 @@ module conv_top #(
   parameter PIX_W   = 8,    // input pixel width (unsigned 0..255)
   parameter COEF_W  = 16,   // coefficient width (signed)
   parameter ACC_W   = 32,   // accumulator width
-  parameter IMG_W   = 128,  // image width (pixels per row)
+  parameter IMG_W   = 64,  // image width (pixels per row)
   parameter USE_ABS = 1,  // 1 = usa |acc| (Sobel), 0 = direto (blur)
   parameter SHIFT = 0
 )(

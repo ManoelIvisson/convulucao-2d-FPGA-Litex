@@ -4,8 +4,8 @@ module tb_conv;
   parameter PIX_W = 8;
   parameter COEF_W = 16;
   parameter ACC_W = 32;
-  parameter IMG_W = 640;
-  parameter IMG_H = 960;
+  parameter IMG_W = 64;
+  parameter IMG_H = 64;
   parameter SHIFT = 8;
 
   logic clk = 0;

@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 img = Image.open("porta.jpg").convert("L")
 arr = np.array(img, dtype=np.uint8)
 
-H, W = 960, 640
+H, W = 64, 64
 
 # salvar como valores hex
 with open("image_in.hex", "w") as f:
@@ -24,5 +24,5 @@ plt.figure(figsize=(10,4))
 
 plt.subplot(1,2,1)
 plt.imshow(img_in, cmap='gray')
-plt.title("Entrada (171 × 256)")
+plt.title("Entrada (64 × 64)")
 plt.axis("off")
