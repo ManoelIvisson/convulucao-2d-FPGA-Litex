@@ -4,11 +4,11 @@ import matplotlib.pyplot as plt
 H, W = 64, 64
 
 # carregar entrada
-data_in = [int(x.strip(),16) for x in open("image_in.hex")]
+data_in = [int(x.strip(),16) for x in open("input.hex")]
 img_in = np.array(data_in, dtype=np.uint8).reshape((H, W))
 
 # carregar saída
-data_out = [int(x.strip(),16) for x in open("out_pixels.hex")]
+data_out = [int(x.strip(),16) for x in open("output.hex")]
 img_out = np.array(data_out, dtype=np.int16).reshape((H-2, W-2))
 
 plt.figure(figsize=(12,6))
