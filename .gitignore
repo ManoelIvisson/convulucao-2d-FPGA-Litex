@@ -1,2 +1,10 @@
+build
 *.hex
+*.jpg
+*.png
 *.vvp
+*.d
+*.o
+*.bin
+*.venv
+*.elf*
