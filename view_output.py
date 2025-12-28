@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-H, W = 64, 64
+H, W = 960, 640
 
 # carregar entrada
 data_in = [int(x.strip(),16) for x in open("input.hex")]
@@ -15,12 +15,12 @@ plt.figure(figsize=(12,6))
 
 plt.subplot(1,2,1)
 plt.imshow(img_in, cmap='gray')
-plt.title("Entrada (64 × 64)")
+plt.title("Entrada (960 × 640)")
 plt.axis("off")
 
 plt.subplot(1,2,2)
 plt.imshow(np.abs(img_out), cmap='gray')
-plt.title("Saída convoluída (64 × 64)")
+plt.title("Saída convoluída (960 × 640)")
 plt.axis("off")
 
 plt.tight_layout()

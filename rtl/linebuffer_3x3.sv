@@ -2,7 +2,7 @@
 // Produces a 3x3 window from a stream of pixels (left-to-right, top-to-bottom)
 module linebuffer_3x3 #(
   parameter PIX_W = 8,
-  parameter IMG_W = 64
+  parameter IMG_W = 128
 )(
   input  logic                 clk,
   input  logic                 rstn,
