@@ -4,12 +4,12 @@ import matplotlib.pyplot as plt
 H, W = 960, 640
 
 # carregar entrada
-data_in = [int(x.strip(),16) for x in open("image_in.hex")]
+data_in = [int(x.strip(),16) for x in open("input.hex")]
 img_in = np.array(data_in, dtype=np.uint8).reshape((H, W))
 
 # carregar saída
-data_out = [int(x.strip(),16) for x in open("out_pixels.hex")]
-img_out = np.array(data_out, dtype=np.int16).reshape((H-2, W-2))
+data_out = [int(x.strip(),16) for x in open("output.hex")]
+img_out = np.array(data_out, dtype=np.int16).reshape((H, W))
 
 plt.figure(figsize=(12,6))
 
@@ -20,7 +20,7 @@ plt.axis("off")
 
 plt.subplot(1,2,2)
 plt.imshow(np.abs(img_out), cmap='gray')
-plt.title("Saída convoluída (958 × 638)")
+plt.title("Saída convoluída (960 × 640)")
 plt.axis("off")
 
 plt.tight_layout()

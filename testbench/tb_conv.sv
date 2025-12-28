@@ -40,7 +40,7 @@ module tb_conv;
 
   initial begin
     // create a simple test image: gradient
-    $readmemh("image_in.hex", img);
+    $readmemh("input.hex", img);
 
     @(posedge rstn);
     @(posedge clk);
@@ -83,7 +83,7 @@ module tb_conv;
   // capture output to file
   integer outfile;
   initial begin
-    outfile = $fopen("out_pixels.hex","w");
+    outfile = $fopen("output.hex","w");
     if (outfile == 0) begin
       $display("ERROR: cannot open out file");
       $finish;

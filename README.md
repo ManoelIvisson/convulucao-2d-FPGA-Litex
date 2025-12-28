@@ -437,6 +437,62 @@ Install dependencies: `pip install pillow numpy`
 - Use DSP blocks for multipliers to optimize resource usage
 - Test on hardware with a simple test pattern before full images
 
+## Installation
+
+The installation process for this custom SoC can be done by following the instructions below.
+
+### Prerequisites
+
+Before compiling the code, it is necessary to install and activate the following software in the development environment:
+
+- [OSS CAD Suite](https://github.com/YosysHQ/oss-cad-suite-build)
+- [LiteX](https://github.com/enjoy-digital/litex)
+- [RISC-V GNU Toolchain Prebuilt](https://github.com/zyedidia/riscv-gnu-toolchain-prebuilt)
+
+### Compilation
+
+With the environment prepared, it is possible to compile the code by executing the following commands within the project's root folder:
+
+Compile the SoC:
+```sh
+python3 build_soc.py
+```
+
+Enter the firmware directory:
+```sh
+cd firmware
+```
+
+Compile the code:
+```sh
+make
+```
+
+Return to the project root folder:
+```sh
+cd ../
+```
+
+Load the SoC onto the board:
+```sh
+sudo openFPGALoader -c cmsisdap --fpga-part LFE5U-45F build/gateware/colorlight_i9.bit
+```
+
+Open the terminal (remember to replace the COM port with the one connected to the board):
+```sh
+litex_term /dev/ttyACM0 --kernel ./firmware/main.bin --speed 115200
+```
+
+Press 'Enter' and load the firmware:
+```sh
+serialboot
+```
+
+Exit the terminal with CTRL+C and send image:
+```sh
+python3 send_image.py
+```
+
 ## Performance
 
 ### Throughput
@@ -507,13 +563,20 @@ Install dependencies: `pip install pillow numpy`
 
 ```
 convulucao-2d-FPGA-Litex/
+├── firmware/
+│   ├── linker.ld            # Firmware memory mapping
+│   ├── main.c               # Firmware functions
+│   └── Makefile             # Compilation commands
 ├── rtl/
 │   ├── conv_top.sv          # Top-level module
 │   ├── linebuffer_3x3.sv    # Line buffer implementation
 │   └── mac9.sv              # MAC unit
 ├── testbench/
 │   └── tb_conv.sv           # Testbench
+├── build_soc.py             # SoC functions
+├── conv_soc_wrapper.py      # Convolution SoC wrapper
 ├── convert_image.py         # Image to hex converter
+├── send_image.py            # Image sender
 ├── view_output.py           # Output visualizer
 └── README.md                # This file
 ```
