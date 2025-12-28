@@ -9,7 +9,7 @@ img_in = np.array(data_in, dtype=np.uint8).reshape((H, W))
 
 # carregar saída
 data_out = [int(x.strip(),16) for x in open("output.hex")]
-img_out = np.array(data_out, dtype=np.int16).reshape((H-2, W-2))
+img_out = np.array(data_out, dtype=np.int16).reshape((H, W))
 
 plt.figure(figsize=(12,6))
 

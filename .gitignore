@@ -7,4 +7,5 @@ build
 *.o
 *.bin
 *.venv
+*.csv
 *.elf*
